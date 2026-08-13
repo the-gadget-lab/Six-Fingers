@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font: 13px system-ui, sans-serif; width: 240px; padding: 12px; margin: 0; }
+      h1 { font-size: 14px; margin: 0 0 10px; }
+      label { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
+      .hint { color: #666; font-size: 11px; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <h1>Slop Detect</h1>
+    <label><input type="checkbox" id="enabled" /> Enable detection</label>
+    <label><input type="checkbox" id="badgeAll" /> Badge every analyzed image</label>
+    <div class="hint">
+      AI verdict threshold: 65% confidence.<br />
+      All inference runs locally — images never leave your device.
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+.slopdetect-badge {
+  position: absolute;
+  z-index: 2147483647;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font: 600 11px/1.5 system-ui, sans-serif;
+  color: #fff;
+  background: rgba(60, 60, 60, 0.75);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.slopdetect-badge[data-verdict="ai"] {
+  background: rgba(220, 38, 38, 0.9);
+}

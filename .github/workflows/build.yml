@@ -1,0 +1,52 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: extension/package-lock.json
+      - run: npm ci
+        working-directory: extension
+      - run: npm run typecheck
+        working-directory: extension
+      - run: npm run build
+        working-directory: extension
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slop-detect-chrome
+          path: extension/dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slop-detect-firefox
+          path: extension/dist-firefox
+      - if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          cd extension
+          (cd dist && zip -qr ../slop-detect-chrome.zip .)
+          (cd dist-firefox && zip -qr ../slop-detect-firefox.zip .)
+      - if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            extension/slop-detect-chrome.zip
+            extension/slop-detect-firefox.zip
+          generate_release_notes: false
+          body: |
+            Slop Detect ${{ github.ref_name }}: local AI image detector for Chrome (MV3, fully in-browser inference).
+            85.3% balanced accuracy at the 0.65 threshold on a 21-generator held-out benchmark, measured end-to-end.
+            Unzip and load via chrome://extensions > Developer mode > Load unpacked, or build from source (see README).

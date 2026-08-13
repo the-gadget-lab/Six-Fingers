@@ -2,9 +2,10 @@ export interface Settings {
   enabled: boolean;
   threshold: number;
   badgeAll: boolean;
+  blurAi: boolean;
 }
 
-const DEFAULTS: Settings = { enabled: true, threshold: 0.65, badgeAll: true };
+const DEFAULTS: Settings = { enabled: true, threshold: 0.65, badgeAll: true, blurAi: true };
 
 export class SettingsStore {
   async get(): Promise<Settings> {

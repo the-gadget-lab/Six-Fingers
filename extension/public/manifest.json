@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Slop Detect — Local AI Image Detector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Detects AI-generated images fully in-browser. No cloud, no servers, no image ever leaves your device.",
   "permissions": ["offscreen", "storage"],
   "host_permissions": ["<all_urls>"],

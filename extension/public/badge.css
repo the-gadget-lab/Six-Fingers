@@ -13,3 +13,13 @@
 .slopdetect-badge[data-verdict="ai"] {
   background: rgba(220, 38, 38, 0.9);
 }
+
+.slopdetect-badge.slopdetect-clickable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+img.slopdetect-blur {
+  filter: blur(16px) saturate(0.7);
+  transition: filter 0.15s ease;
+}

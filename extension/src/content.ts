@@ -26,13 +26,19 @@ class TaskQueue {
 class Badge {
   private el: HTMLElement;
 
-  constructor(private img: HTMLImageElement, prob: number, threshold: number) {
+  constructor(private img: HTMLImageElement, prob: number, threshold: number, blur: boolean) {
     this.el = document.createElement("div");
     this.el.className = "slopdetect-badge";
     const pct = Math.round(prob * 100);
     const isAi = prob >= threshold;
     this.el.textContent = isAi ? `AI ${pct}%` : `${pct}%`;
     this.el.dataset.verdict = isAi ? "ai" : "real";
+    if (isAi && blur) {
+      img.classList.add("slopdetect-blur");
+      this.el.classList.add("slopdetect-clickable");
+      this.el.title = "Click to reveal";
+      this.el.addEventListener("click", () => img.classList.toggle("slopdetect-blur"));
+    }
     document.documentElement.appendChild(this.el);
     this.place();
   }
@@ -49,6 +55,7 @@ class Badge {
   }
 
   remove(): void {
+    this.img.classList.remove("slopdetect-blur");
     this.el.remove();
   }
 }
@@ -75,10 +82,10 @@ class BadgeLayer {
     addEventListener("resize", onScrollResize, { passive: true });
   }
 
-  show(img: HTMLImageElement, prob: number, threshold: number, badgeAll: boolean): void {
+  show(img: HTMLImageElement, prob: number, threshold: number, badgeAll: boolean, blurAi: boolean): void {
     this.drop(img);
     if (!badgeAll && prob < threshold) return;
-    this.badges.set(img, new Badge(img, prob, threshold));
+    this.badges.set(img, new Badge(img, prob, threshold, blurAi));
   }
 
   drop(img: HTMLImageElement): void {
@@ -138,7 +145,7 @@ class ImageScanner {
     );
     if (resp?.ok && resp.prob !== undefined) {
       img.dataset.slopdetectProb = resp.prob.toFixed(4);
-      this.layer.show(img, resp.prob, this.settings.threshold, this.settings.badgeAll);
+      this.layer.show(img, resp.prob, this.settings.threshold, this.settings.badgeAll, this.settings.blurAi);
     } else {
       img.dataset.slopdetectError = resp?.error ?? "no response";
       console.debug("[slopdetect] scoring failed:", url, resp?.error);
@@ -155,6 +162,9 @@ async function main(): Promise<void> {
   store.onChange((s) => {
     Object.assign(settings, s);
     if (!s.enabled) layer.clear();
+    if (!s.blurAi) {
+      document.querySelectorAll(".slopdetect-blur").forEach((el) => el.classList.remove("slopdetect-blur"));
+    }
   });
   scanner.start();
 }

@@ -1,22 +1,48 @@
 .slopdetect-badge {
   position: absolute;
   z-index: 2147483647;
-  padding: 2px 7px;
-  border-radius: 10px;
-  font: 600 11px/1.5 system-ui, sans-serif;
-  color: #fff;
-  background: rgba(60, 60, 60, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font: 600 11px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: #fafaf7;
+  background: rgba(22, 24, 29, 0.72);
+  backdrop-filter: blur(6px) saturate(1.2);
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25), inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
   pointer-events: none;
   white-space: nowrap;
 }
 
+.slopdetect-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #30a46c;
+  flex: none;
+}
+
 .slopdetect-badge[data-verdict="ai"] {
-  background: rgba(220, 38, 38, 0.9);
+  background: rgba(180, 35, 40, 0.88);
+}
+
+.slopdetect-badge[data-verdict="ai"]::before {
+  background: #fafaf7;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
 }
 
 .slopdetect-badge.slopdetect-clickable {
   pointer-events: auto;
   cursor: pointer;
+}
+
+.slopdetect-badge.slopdetect-clickable:hover {
+  background: rgba(210, 45, 50, 0.95);
 }
 
 img.slopdetect-blur {

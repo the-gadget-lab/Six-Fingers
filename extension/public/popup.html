@@ -3,21 +3,131 @@
   <head>
     <meta charset="utf-8" />
     <style>
-      body { font: 13px system-ui, sans-serif; width: 240px; padding: 12px; margin: 0; }
-      h1 { font-size: 14px; margin: 0 0 10px; }
-      label { display: flex; align-items: center; gap: 8px; margin: 8px 0; cursor: pointer; }
-      .hint { color: #666; font-size: 11px; margin-top: 10px; }
+      :root {
+        --ink: #16181d;
+        --panel: #1d2026;
+        --line: #2c3037;
+        --paper: #fafaf7;
+        --muted: #9a9fa8;
+        --signal: #e5484d;
+        --ok: #30a46c;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        width: 260px;
+        background: var(--ink);
+        color: var(--paper);
+        font: 13px/1.45 system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 14px 16px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      header .dot {
+        align-self: center;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ok);
+        flex: none;
+      }
+      body.off header .dot { background: var(--muted); }
+      h1 { font-size: 14px; font-weight: 650; letter-spacing: -0.01em; }
+      header .ver {
+        margin-left: auto;
+        font: 500 10px ui-monospace, "SF Mono", Menlo, monospace;
+        color: var(--muted);
+      }
+      main { padding: 6px 8px; }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 8px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .row:hover { background: var(--panel); }
+      .row .label { flex: 1; }
+      .row .hint { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+      .switch {
+        position: relative;
+        width: 34px;
+        height: 20px;
+        flex: none;
+      }
+      .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+      .switch .track {
+        position: absolute;
+        inset: 0;
+        border-radius: 10px;
+        background: var(--line);
+        transition: background 0.15s;
+      }
+      .switch .track::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--paper);
+        transition: transform 0.15s;
+      }
+      .switch input:checked + .track { background: var(--ok); }
+      .switch input:checked + .track::after { transform: translateX(14px); }
+      .switch input:focus-visible + .track { outline: 2px solid var(--paper); outline-offset: 2px; }
+      footer {
+        padding: 11px 16px 13px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 11px;
+      }
+      footer .thresh {
+        font: 600 11px ui-monospace, "SF Mono", Menlo, monospace;
+        color: var(--paper);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .switch .track, .switch .track::after { transition: none; }
+      }
     </style>
   </head>
   <body>
-    <h1>Slop Detect</h1>
-    <label><input type="checkbox" id="enabled" /> Enable detection</label>
-    <label><input type="checkbox" id="badgeAll" /> Badge every analyzed image</label>
-    <label><input type="checkbox" id="blurAi" /> Blur images detected as AI</label>
-    <div class="hint">
-      AI verdict threshold: 65% confidence.<br />
-      All inference runs locally — images never leave your device.
-    </div>
+    <header>
+      <span class="dot"></span>
+      <h1>Slop Detect</h1>
+      <span class="ver" id="ver"></span>
+    </header>
+    <main>
+      <label class="row">
+        <span class="label">Detection
+          <span class="hint">Scan images on every page</span>
+        </span>
+        <span class="switch"><input type="checkbox" id="enabled" /><span class="track"></span></span>
+      </label>
+      <label class="row">
+        <span class="label">Score every image
+          <span class="hint">Badge real images too, not only AI</span>
+        </span>
+        <span class="switch"><input type="checkbox" id="badgeAll" /><span class="track"></span></span>
+      </label>
+      <label class="row">
+        <span class="label">Blur AI images
+          <span class="hint">Click a badge to reveal</span>
+        </span>
+        <span class="switch"><input type="checkbox" id="blurAi" /><span class="track"></span></span>
+      </label>
+    </main>
+    <footer>
+      Flags images at <span class="thresh">&ge;65%</span> confidence.
+      Every image is analyzed on this device and never leaves it.
+    </footer>
     <script src="popup.js"></script>
   </body>
 </html>

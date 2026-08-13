@@ -3,21 +3,24 @@ import { createHash } from "node:crypto";
 import { cp, mkdir, rm, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 
-const MODEL_URL =
-  "https://huggingface.co/Loke-60000/slop-detect-vit-s-onnx/resolve/main/model.onnx";
-const MODEL_SHA256 = "d431efd677cc124ab68c3f1b20d628b7e9a8362a99803b1878475060b05cff5a";
-const MODEL_PATH = "../model/dist/model.onnx";
+const HF_BASE = "https://huggingface.co/Loke-60000/slop-detect-vit-s-onnx/resolve/main";
+const MODELS = [
+  { file: "model.onnx", sha256: "d431efd677cc124ab68c3f1b20d628b7e9a8362a99803b1878475060b05cff5a" },
+  { file: "model_fp16.onnx", sha256: "ee65a02d7d0bac16cc6464a81da64d0653f03aa88380c605d2c74423318a479d" },
+];
 
-if (!existsSync(MODEL_PATH)) {
-  console.log("fetching model weights (one-time, ~23MB)...");
-  const resp = await fetch(MODEL_URL);
+for (const { file, sha256 } of MODELS) {
+  const path = `../model/dist/${file}`;
+  if (existsSync(path)) continue;
+  console.log(`fetching ${file} (one-time)...`);
+  const resp = await fetch(`${HF_BASE}/${file}`);
   if (!resp.ok) throw new Error(`model download failed: ${resp.status}`);
   const bytes = Buffer.from(await resp.arrayBuffer());
   const sha = createHash("sha256").update(bytes).digest("hex");
-  if (sha !== MODEL_SHA256) throw new Error(`model hash mismatch: ${sha}`);
+  if (sha !== sha256) throw new Error(`${file} hash mismatch: ${sha}`);
   await mkdir("../model/dist", { recursive: true });
-  await writeFile(MODEL_PATH, bytes);
-  console.log("model verified:", sha.slice(0, 16));
+  await writeFile(path, bytes);
+  console.log(`${file} verified:`, sha.slice(0, 16));
 }
 
 const outdir = "dist";
@@ -42,6 +45,10 @@ await cp("public", outdir, { recursive: true });
 await cp("../model/dist", `${outdir}/model`, { recursive: true });
 await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.wasm", `${outdir}/ort/ort-wasm-simd-threaded.wasm`);
 await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs", `${outdir}/ort/ort-wasm-simd-threaded.mjs`);
+await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.wasm", `${outdir}/ort/ort-wasm-simd-threaded.jsep.wasm`);
+await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.jsep.mjs", `${outdir}/ort/ort-wasm-simd-threaded.jsep.mjs`);
+await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.wasm", `${outdir}/ort/ort-wasm-simd-threaded.asyncify.wasm`);
+await cp("node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.asyncify.mjs", `${outdir}/ort/ort-wasm-simd-threaded.asyncify.mjs`);
 console.log("built ->", outdir);
 
 const ffdir = "dist-firefox";

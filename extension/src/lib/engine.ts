@@ -1,4 +1,4 @@
-import * as ort from "onnxruntime-web/wasm";
+import * as ort from "onnxruntime-web/webgpu";
 import type { ModelSpec, ScoreRequest, ScoreResponse } from "./types";
 
 class Preprocessor {
@@ -41,15 +41,38 @@ export class InferenceEngine {
         const specUrl = chrome.runtime.getURL("model/model.json");
         const spec = (await (await fetch(specUrl)).json()) as ModelSpec;
         this.preprocessor = new Preprocessor(spec);
-        const modelUrl = chrome.runtime.getURL(`model/${spec.file}`);
-        const bytes = new Uint8Array(await (await fetch(modelUrl)).arrayBuffer());
-        return ort.InferenceSession.create(bytes, {
-          executionProviders: ["wasm"],
-          graphOptimizationLevel: "all",
-        });
+        const load = async (file: string, providers: string[]) => {
+          const url = chrome.runtime.getURL(`model/${file}`);
+          const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+          return ort.InferenceSession.create(bytes, {
+            executionProviders: providers,
+            graphOptimizationLevel: "all",
+          });
+        };
+        if (spec.fp16File && (await this.webgpuUsable())) {
+          try {
+            const s = await load(spec.fp16File, ["webgpu"]);
+            console.debug("[slopdetect] backend: webgpu fp16");
+            return s;
+          } catch (e) {
+            console.debug("[slopdetect] webgpu init failed, falling back to wasm:", e);
+          }
+        }
+        const s = await load(spec.file, ["wasm"]);
+        console.debug("[slopdetect] backend: wasm int8");
+        return s;
       })();
     }
     return this.session;
+  }
+
+  private async webgpuUsable(): Promise<boolean> {
+    try {
+      const gpu = (navigator as Navigator & { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
+      return Boolean(gpu && (await gpu.requestAdapter()));
+    } catch {
+      return false;
+    }
   }
 
   async score(url: string): Promise<number> {

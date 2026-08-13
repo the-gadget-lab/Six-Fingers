@@ -84,7 +84,7 @@ def main():
         print(f"int8 vs torch on random input: {float(np.abs(got_q - ref).max()):.4f}")
 
     spec = {
-        "file": "model.onnx", "inputSize": 384, "resizeSize": 440,
+        "file": "model.onnx", "fp16File": "model_fp16.onnx", "inputSize": 384, "resizeSize": 440,
         "mean": list(CLIP_MEAN), "std": list(CLIP_STD), "threshold": 0.65,
     }
     (OUT / "model.json").write_text(json.dumps(spec, indent=2) + "\n")

@@ -56,6 +56,7 @@ const browser = await launch({
     `--disable-extensions-except=${DIST}`,
     `--load-extension=${DIST}`,
     "--no-sandbox",
+    ...(process.env.EXTRA_CHROME_ARGS?.split(" ") ?? []),
   ],
   protocolTimeout: 1800000,
 });

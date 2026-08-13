@@ -12,5 +12,6 @@
     0.26130258,
     0.27577711
   ],
-  "threshold": 0.65
+  "threshold": 0.65,
+  "fp16File": "model_fp16.onnx"
 }

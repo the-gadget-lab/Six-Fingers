@@ -1,5 +1,6 @@
 export interface ModelSpec {
   file: string;
+  fp16File?: string;
   inputSize: number;
   resizeSize: number;
   mean: [number, number, number];
